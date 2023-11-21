@@ -10,6 +10,7 @@ const addTodo = async (event) => {
     id,
     todo,
     createdAt,
+    updatedAt: createdAt,
     completed: false
   };
   await dynamoDB.put({

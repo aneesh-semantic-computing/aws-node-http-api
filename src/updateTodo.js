@@ -15,7 +15,7 @@ const updateTodo = async (event) => {
   }
   if (completed !== undefined && completed !== null) {
     if (UpdateExpression !== "set "){
-      UpdateExpression += " , completed = :completed";
+      UpdateExpression += ", completed = :completed";
     } else {
       UpdateExpression += "completed = :completed";
     }
@@ -27,6 +27,9 @@ const updateTodo = async (event) => {
       body: "No request payload",
     };
   }
+  UpdateExpression += ", updatedAt = :updatedAt";
+  ExpressionAttributeValues[":updatedAt"] = new Date().toISOString();
+
   
   const updatedItem = await dynamoDB.update({
     TableName: "TodoTable",

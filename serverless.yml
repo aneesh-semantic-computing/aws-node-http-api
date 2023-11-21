@@ -5,12 +5,14 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: eu-west-2
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:*
-      Resource:
-        - arn:aws:dynamodb:eu-west-2:683543223421:table/TodoTable
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - arn:aws:dynamodb:eu-west-2:683543223421:table/TodoTable
 
 functions:
   addTodo:
