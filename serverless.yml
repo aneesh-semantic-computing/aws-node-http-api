@@ -1,0 +1,53 @@
+service: aws-node-http-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:eu-west-2:683543223421:table/TodoTable
+
+functions:
+  addTodo:
+    handler: src/addTodo.handler
+    events:
+      - httpApi:
+          path: /
+          method: post
+  fetchTodos:
+    handler: src/fetchTodos.handler
+    events:
+      - httpApi:
+          path: /todos
+          method: get
+  fetchTodo:
+    handler: src/fetchTodo.handler
+    events:
+      - httpApi:
+          path: /todo/{id}
+          method: get
+  updateTodo:
+    handler: src/updateTodo.handler
+    events:
+      - httpApi:
+          path: /todo/{id}
+          method: patch
+
+resources:
+  Resources:
+    TodoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TodoTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
