@@ -1,11 +1,14 @@
-const { v4 } = require('uuid');
-const AWS = require('aws-sdk');
+import middy from '@middy/core';
+import jsonBodyParser from '@middy/http-json-body-parser';
+import httpErrorHandler from '@middy/http-error-handler';
+import validator from '@middy/validator';
+import { transpileSchema } from '@middy/validator/transpile';
+import AWS from 'aws-sdk';
 
 const updateTodo = async (event) => {
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
   const { id } = event.pathParameters;
-  const { todo, completed } = JSON.parse(event.body);
-  const createdAt = new Date().toISOString();
+  const { todo, completed } = event.body;
 
   let UpdateExpression = "set ";
   const ExpressionAttributeValues = {}
@@ -45,6 +48,22 @@ const updateTodo = async (event) => {
   };
 };
 
-module.exports = {
-  handler: updateTodo
-}
+const schema = {
+  type: 'object',
+  properties: {
+    body: {
+      type: 'object',
+      properties: {
+        todo: { type: 'string', minLength: 3, maxLength: 30 },
+        completed: { type: 'boolean' }
+      },
+      required: []
+    }
+  }
+};
+
+export const handler = middy()
+                  .use(jsonBodyParser())
+                  .use(validator({ eventSchema: transpileSchema(schema) }))
+                  .use(httpErrorHandler())
+                  .handler(updateTodo);

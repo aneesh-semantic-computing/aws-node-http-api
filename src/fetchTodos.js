@@ -1,4 +1,7 @@
-const AWS = require('aws-sdk');
+import middy from '@middy/core';
+import httpErrorHandler from '@middy/http-error-handler';
+import AWS from 'aws-sdk';
+
 
 const fetchTodos = async (event) => {
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
@@ -18,6 +21,6 @@ const fetchTodos = async (event) => {
   }
 };
 
-module.exports = {
-  handler: fetchTodos
-}
+export const handler = middy()
+                  .use(httpErrorHandler())
+                  .handler(fetchTodos);
